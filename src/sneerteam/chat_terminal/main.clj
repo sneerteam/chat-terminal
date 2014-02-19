@@ -61,7 +61,7 @@
     (doseq [[row m] (map-indexed vector msgs)]
       (s/put-string scr 0 row (str (:sender m) "> " (:body m))))
 
-    (let [{:keys [x y visible value]} @input-state]
+    (let [{:keys [x visible value]} @input-state]
       (s/put-string scr 0 rows value)
       (when visible (s/move-cursor scr x rows))
       (-> scr .getTerminal (.setCursorVisible visible)))
