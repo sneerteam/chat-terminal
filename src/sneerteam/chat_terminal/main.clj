@@ -39,7 +39,7 @@
 (defn send-message [out body]
   (go (>! out {:type :create-msg :sender user-name :body body})))
 
-(def input-state (atom {:x 0 :y 0 :visible true :value ""}))
+(def input-state (atom {:x 0 :visible true :value ""}))
 
 (defn set-input-value [value]
   (swap! input-state merge {:value value :x (.length value)}))
@@ -58,12 +58,12 @@
         msgs (drop scroll-pos msgs)]
     (s/clear scr)
 
-    (doseq [[row m] (map vector (range rows) msgs)]
+    (doseq [[row m] (map-indexed vector msgs)]
       (s/put-string scr 0 row (str (:sender m) "> " (:body m))))
 
     (let [{:keys [x y visible value]} @input-state]
       (s/put-string scr 0 rows value)
-      (when visible (s/move-cursor scr x y))
+      (when visible (s/move-cursor scr x rows))
       (-> scr .getTerminal (.setCursorVisible visible)))
 
     (s/redraw scr)))
@@ -93,10 +93,6 @@
         (do (handle-key key ctx)
             (recur))))))
 
-(defn init-cursor-state [scr]
-  (let [rows (screen-rows-1 scr)]
-    (swap! input-state assoc :y rows)))
-
 (defn blink-cursor []
   (swap! input-state #(assoc % :visible (not (:visible %)))))
 
@@ -109,8 +105,6 @@
 
     (add-redraw-watch messages)
     (add-redraw-watch input-state)
-
-    (init-cursor-state scr)
 
     (loop [next-handle-keys (key-timeout)
            next-blink (blink-timeout)]
