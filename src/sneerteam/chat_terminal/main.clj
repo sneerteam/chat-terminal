@@ -134,8 +134,7 @@
 (defn feed-every [msecs server sender messages]
   (go-loop []
     (<! (async/timeout msecs))
-    (let [msg (feed-msg sender (rand-nth messages))]
-      (>! server msg))
+    (>! server (feed-msg sender (rand-nth messages)))
     (recur)))
 
 (defn create-msg->feed-msg [{:keys [sender body]}]
