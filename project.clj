@@ -1,4 +1,4 @@
-(defproject sneerteam.chat.cui "0.1.0-SNAPSHOT"
+(defproject sneerteam.chat-terminal "0.1.0-SNAPSHOT"
   :description "A simple chat client."
   :url "http://github.com/sneerteam/chat-terminal"
   :license {:name "Eclipse Public License"
