@@ -95,7 +95,7 @@
 
 (defn handle-keys [scr ctx]
   (loop []
-    (when-let [key (s/get-key scr)]
+    (when-let [key (s/get-key-blocking scr)]
       (if (= :escape key)
         :escape
         (do (handle-key key ctx)
@@ -107,26 +107,24 @@
 (defn screen-loop [scr ctx]
 
   (let [blink-timeout #(async/timeout 500)
-        key-timeout #(async/timeout 100)
+        input-thread (async/thread (handle-keys scr ctx))
         next-redraw (async/chan (async/sliding-buffer 1))
         add-redraw-watch #(add-watch % :screen (fn [& _] (>!! next-redraw :redraw)))]
 
     (add-redraw-watch messages)
     (add-redraw-watch input-state)
 
-    (loop [next-handle-keys (key-timeout)
-           next-blink (blink-timeout)]
+    (loop [next-blink (blink-timeout)]
       (alt!!
         next-redraw ([_] (do
                            (redraw scr)
-                           (recur next-handle-keys next-blink)))
-
-        next-handle-keys ([_] (when-not (= :escape (handle-keys scr ctx))
-                                (recur (key-timeout) next-blink)))
+                           (recur next-blink)))
 
         next-blink ([_] (do
                           (blink-cursor)
-                          (recur next-handle-keys (blink-timeout))))))))
+                          (recur (blink-timeout))))
+
+        input-thread ([_] _)))))
 
 (defn run-screen-loop
   "runs the screen loop sending messages to the `sout` channel."
