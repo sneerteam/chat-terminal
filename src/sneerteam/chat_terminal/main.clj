@@ -51,6 +51,9 @@
   (let [[_ rows] (s/get-size scr)]
     (dec rows)))
 
+
+(defn set-cursor-visible [scr visible]
+  (-> scr .getTerminal (.setCursorVisible visible)))
 (defn redraw [scr]
   (let [rows (screen-rows-1 scr)
         msgs @messages
@@ -64,7 +67,7 @@
     (let [{:keys [visible value]} @input-state]
       (s/put-string scr 0 rows value)
       (when visible (s/move-cursor scr (.length value) rows))
-      (-> scr .getTerminal (.setCursorVisible visible)))
+      (set-cursor-visible scr visible))
 
     (s/redraw scr)))
 
