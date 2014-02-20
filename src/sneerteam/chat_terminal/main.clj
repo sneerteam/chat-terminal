@@ -39,10 +39,10 @@
 (defn send-message [out body]
   (go (>! out {:type :create-msg :sender user-name :body body})))
 
-(def input-state (atom {:x 0 :visible true :value ""}))
+(def input-state (atom {:visible true :value ""}))
 
 (defn set-input-value [value]
-  (swap! input-state merge {:value value :x (.length value)}))
+  (swap! input-state assoc :value value))
 
 (defn input-value []
   (:value @input-state))
@@ -61,9 +61,9 @@
     (doseq [[row m] (map-indexed vector msgs)]
       (s/put-string scr 0 row (str (:sender m) "> " (:body m))))
 
-    (let [{:keys [x visible value]} @input-state]
+    (let [{:keys [visible value]} @input-state]
       (s/put-string scr 0 rows value)
-      (when visible (s/move-cursor scr x rows))
+      (when visible (s/move-cursor scr (.length value) rows))
       (-> scr .getTerminal (.setCursorVisible visible)))
 
     (s/redraw scr)))
