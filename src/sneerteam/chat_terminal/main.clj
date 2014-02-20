@@ -131,9 +131,8 @@
   "runs the screen loop sending messages to the `sout` channel."
   [sout]
   (let [scr (s/get-screen :text)]
-    (s/start scr)
-    (screen-loop scr sout)
-    (s/stop scr)))
+    (s/in-screen scr
+       (screen-loop scr sout))))
 
 (defn feed-msg [sender body]
   {:type :feed-msg :timestamp (System/currentTimeMillis) :sender sender :body body})
