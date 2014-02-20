@@ -109,12 +109,12 @@
     (loop [next-handle-keys (key-timeout)
            next-blink (blink-timeout)]
       (alt!!
-        next-redraw ([msgs] (do
-                              (redraw scr)
-                              (recur next-handle-keys next-blink)))
+        next-redraw ([_] (do
+                           (redraw scr)
+                           (recur next-handle-keys next-blink)))
 
         next-handle-keys ([_] (when-not (= :escape (handle-keys scr ctx))
-                            (recur (key-timeout) next-blink)))
+                                (recur (key-timeout) next-blink)))
 
         next-blink ([_] (do
                           (blink-cursor)
