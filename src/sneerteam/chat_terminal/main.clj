@@ -108,7 +108,7 @@
   (let [blink-timeout #(async/timeout 500)
         key-timeout #(async/timeout 100)
         next-redraw (async/chan (async/sliding-buffer 1))
-        add-redraw-watch #(add-watch % :screen (fn [key a old new] (>!! next-redraw :redraw)))]
+        add-redraw-watch #(add-watch % :screen (fn [& _] (>!! next-redraw :redraw)))]
 
     (add-redraw-watch messages)
     (add-redraw-watch input-state)
