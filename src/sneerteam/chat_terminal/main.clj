@@ -51,26 +51,27 @@
   (let [[_ rows] (s/get-size scr)]
     (dec rows)))
 
+(defn set-cursor-visible [scr visible]
+  (-> scr .getTerminal (.setCursorVisible visible)))
+
 (defn draw-message [scr row msg]
   (s/put-string scr 0 row (str (:sender msg) "> " (:body msg))))
 
-(defn set-cursor-visible [scr visible]
-  (-> scr .getTerminal (.setCursorVisible visible)))
+(defn draw-input-prompt [scr row]
+  (let [{:keys [visible value]} @input-state]
+      (s/put-string scr 0 row value)
+      (when visible (s/move-cursor scr (.length value) row))
+      (set-cursor-visible scr visible)))
 
 (defn redraw [scr]
   (let [rows (screen-rows-1 scr)
         msgs @messages
         scroll-pos (max 0 (- (count msgs) rows))
         msgs (drop scroll-pos msgs)]
+
     (s/clear scr)
-
     (doall (map-indexed (partial draw-message scr) msgs))
-
-    (let [{:keys [visible value]} @input-state]
-      (s/put-string scr 0 rows value)
-      (when visible (s/move-cursor scr (.length value) rows))
-      (set-cursor-visible scr visible))
-
+    (draw-input-prompt scr rows)
     (s/redraw scr)))
 
 (defmulti handle-key (fn [key ctx] (if (char? key) :char key)))
