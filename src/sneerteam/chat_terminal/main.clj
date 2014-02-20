@@ -41,6 +41,12 @@
 
 (def input-state (atom {:visible true :value ""}))
 
+(defn blink-cursor []
+  (swap! input-state #(assoc % :visible (not (:visible %)))))
+
+(defn cursor-visible? []
+  (:visible @input-state))
+
 (defn set-input-value [value]
   (swap! input-state assoc :value value))
 
@@ -58,21 +64,23 @@
   (s/put-string scr 0 row (str (:sender msg) "> " (:body msg))))
 
 (defn draw-input-prompt [scr row]
-  (let [{:keys [visible value]} @input-state]
-      (s/put-string scr 0 row value)
-      (s/move-cursor scr (.length value) row)
-      (set-cursor-visible scr visible)))
+  (let [value (input-value)]
+    (s/put-string scr 0 row value)
+    (s/move-cursor scr (.length value) row)))
 
 (defn redraw [scr]
   (let [rows (screen-rows-1 scr)
         msgs @messages
         scroll-pos (max 0 (- (count msgs) rows))
-        msgs (drop scroll-pos msgs)]
+        msgs (drop scroll-pos msgs)
+        set-cursor-visibility (partial set-cursor-visible scr (cursor-visible?))]
 
     (s/clear scr)
     (doall (map-indexed (partial draw-message scr) msgs))
     (draw-input-prompt scr rows)
-    (s/redraw scr)))
+    (set-cursor-visibility)
+    (s/redraw scr)
+    (set-cursor-visibility)))
 
 (defmulti handle-key (fn [key ctx] (if (char? key) :char key)))
 
@@ -100,9 +108,6 @@
         :escape
         (do (handle-key key ctx)
             (recur))))))
-
-(defn blink-cursor []
-  (swap! input-state #(assoc % :visible (not (:visible %)))))
 
 (defn screen-loop [scr ctx]
 
