@@ -81,9 +81,9 @@
 
 (defmethod handle-key :backspace [key ctx]
   (let [value (input-value)
-        new-length (dec (.length value))]
-    (when (>= new-length 0)
-      (set-input-value (subs value 0 new-length)))))
+        length (.length value)]
+    (when (pos? length)
+      (set-input-value (subs value 0 (dec length))))))
 
 (defmethod handle-key :default [key ctx])
 
