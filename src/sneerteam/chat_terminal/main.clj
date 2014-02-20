@@ -74,8 +74,10 @@
   (set-input-value (str (input-value) key)))
 
 (defmethod handle-key :enter [key ctx]
-  (send-message ctx (input-value))
-  (set-input-value ""))
+  (let [value (input-value)]
+    (when (pos? (.length value))
+      (send-message ctx value)
+      (set-input-value ""))))
 
 (defmethod handle-key :backspace [key ctx]
   (let [value (input-value)
