@@ -60,7 +60,7 @@
 (defn draw-input-prompt [scr row]
   (let [{:keys [visible value]} @input-state]
       (s/put-string scr 0 row value)
-      (when visible (s/move-cursor scr (.length value) row))
+      (s/move-cursor scr (.length value) row)
       (set-cursor-visible scr visible)))
 
 (defn redraw [scr]
