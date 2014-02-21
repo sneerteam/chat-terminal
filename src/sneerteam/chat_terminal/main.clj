@@ -90,22 +90,24 @@
     (s/redraw scr)
     (set-cursor-visibility)))
 
-(defmulti handle-key (fn [key ctx] (if (char? key) :char key)))
+(defmulti handle-key
+  "handles the key and returns the new input value"
+  (fn [key ctx] (if (char? key) :char key)))
 
 (defmethod handle-key :char [key ctx]
-  (set-input-value (str (input-value) key)))
+  (str (input-value) key))
 
 (defmethod handle-key :enter [key ctx]
   (let [value (input-value)]
     (when (pos? (.length value))
       (send-message ctx value)
-      (set-input-value ""))))
+      "")))
 
 (defmethod handle-key :backspace [key ctx]
   (let [value (input-value)
         length (.length value)]
     (when (pos? length)
-      (set-input-value (subs value 0 (dec length))))))
+      (subs value 0 (dec length)))))
 
 (defmethod handle-key :default [key ctx])
 
@@ -114,8 +116,10 @@
     (when-let [key (s/get-key-blocking scr)]
       (if (= :escape key)
         :escape
-        (do (handle-key key ctx)
-            (recur))))))
+        (do
+          (when-let [new-input-value (handle-key key ctx)]
+            (set-input-value new-input-value))
+          (recur))))))
 
 (defn screen-loop [scr ctx]
 
