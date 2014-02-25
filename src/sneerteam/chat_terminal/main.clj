@@ -37,8 +37,8 @@
 
 (def user-name (System/getProperty "user.name"))
 
-(defn send-message [out body]
-  (go (>! out {:type :create-msg :sender user-name :body body})))
+(defn send-message [out contents]
+  (go (>! out {:type :msg :sender user-name :contents contents})))
 
 (def input-state (atom {:visible true :value ""}))
 
@@ -62,7 +62,7 @@
   (-> scr .getTerminal (.setCursorVisible visible)))
 
 (defn draw-message [scr row msg]
-  (s/put-string scr 0 row (str (:sender msg) "> " (:body msg))))
+  (s/put-string scr 0 row (str (:sender msg) "> " (:contents msg))))
 
 (defn draw-input-prompt [scr row]
   (let [value (input-value)]
