@@ -1,7 +1,8 @@
 (ns sneerteam.chat-terminal.main
   (:require [lanterna.screen :as s]
             [amalloy.ring-buffer :refer [ring-buffer]]
-            [clojure.core.async :as async :refer [go go-loop alt! alt!! <! >! >!! <!!]])
+            [clojure.core.async :as async :refer [go go-loop alt! alt!! <! >! >!! <!!]]
+            [sneerteam.chat-terminal.udp :as udp])
   (:gen-class))
 
 (def max-messages 200)
@@ -138,28 +139,11 @@
     (s/in-screen scr
        (screen-loop scr sout))))
 
-(defn feed-msg [sender body]
-  {:type :feed-msg :timestamp (System/currentTimeMillis) :sender sender :body body})
-
-(defn feed-every [msecs server sender messages]
-  (go-loop []
-    (<! (async/timeout msecs))
-    (>! server (feed-msg sender (rand-nth messages)))
-    (recur)))
-
-(defn create-msg->feed-msg [{:keys [sender body]}]
-  (feed-msg sender body))
-
-(defn start-fake-clients [sin sout]
-  (feed-every 2500 sin "klaus" ["sir" "atualizei lá" "blz?"])
-  (feed-every 5000 sin "bamboo"["opa!" "e aí?" "blz." "agora sim!"])
-  (feed-every 4000 sin "fabio" ["tri!" "sabe o que seria tri?" "ok"])
-  (async/pipe (async/map< create-msg->feed-msg sout) sin))
-
 (defn -main
-  [& args]
-  (let [sin (async/chan 1)
-        sout (async/chan 1)]
-    (start-fake-clients sin sout)
-    (client-loop sin sout)
-    (run-screen-loop sout)))
+  [& [host port]]
+  (if port
+    (let [{:keys [in out]} (udp/connect host (read-string port))]
+      (client-loop in out)
+      (run-screen-loop out))
+    (do
+      (println "Usage: host port"))))
