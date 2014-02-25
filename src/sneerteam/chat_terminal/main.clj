@@ -61,8 +61,15 @@
 (defn set-cursor-visible [scr visible]
   (-> scr .getTerminal (.setCursorVisible visible)))
 
-(defn draw-message [scr row msg]
-  (s/put-string scr 0 row (str (:sender msg) "> " (:contents msg))))
+(def sender-colors [:red :green :yellow :blue :magenta :cyan])
+
+(defn color-for [sender]
+  (if (= user-name sender)
+    :white
+    (nth sender-colors (mod (hash sender) (count sender-colors)))))
+
+(defn draw-message [scr row {:keys [sender contents]}]
+  (s/put-string scr 0 row (str sender "> " contents) {:fg (color-for sender)}))
 
 (defn draw-input-prompt [scr row]
   (let [value (input-value)]
