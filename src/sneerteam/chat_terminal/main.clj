@@ -141,9 +141,8 @@
 
 (defn -main
   [& [host port]]
-  (if port
-    (let [{:keys [in out]} (udp/connect host (read-string port))]
-      (client-loop in out)
-      (run-screen-loop out))
-    (do
-      (println "Usage: host port"))))
+  (let [host (or host "dynamic.sneer.me")
+        port (if port (Long/parseLong port) 55555)
+        {:keys [in out]} (udp/connect host port)]
+    (client-loop in out)
+    (run-screen-loop out)))
