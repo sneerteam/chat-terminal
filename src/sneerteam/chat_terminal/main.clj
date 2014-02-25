@@ -19,7 +19,7 @@
   [m]
   (async/timeout (long (minutes->msec m))))
 
-(defn client-loop
+(defn async-client-loop
   "Sits in a loop waiting for messages from server-in.
   If it doesn't hear from server-in in 3 minutes it will request new messages using server-out.
   Quits the loop when server-in is closed."
@@ -132,7 +132,7 @@
 
         input-thread ([_] _)))))
 
-(defn run-screen-loop
+(defn enter-screen-loop
   "runs the screen loop sending messages to the `sout` channel."
   [sout]
   (let [scr (s/get-screen :text)]
@@ -144,5 +144,5 @@
   (let [host (or host "dynamic.sneer.me")
         port (if port (Long/parseLong port) 55555)
         {:keys [in out]} (udp/connect host port)]
-    (client-loop in out)
-    (run-screen-loop out)))
+    (async-client-loop in out)
+    (enter-screen-loop out)))
