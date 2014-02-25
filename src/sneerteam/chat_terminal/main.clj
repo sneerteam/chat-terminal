@@ -31,7 +31,7 @@
                            (conj-message msg)
                            (recur (server-timeout))))
         timeout ([_] (do
-                       (>! server-out {:type :get-last-msgs})
+                       (>! server-out {:type :whats-up})
                        ; try again in 1 minute
                        (recur (timeout-minutes 1))))))))
 
