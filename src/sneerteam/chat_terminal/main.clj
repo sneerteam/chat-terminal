@@ -68,8 +68,10 @@
     :white
     (nth sender-colors (mod (hash sender) (count sender-colors)))))
 
-(defn draw-message [scr row {:keys [sender contents]}]
-  (s/put-string scr 0 row (str sender "> " contents) {:fg (color-for sender)}))
+(defn draw-message [scr row {:keys [sender contents] :as m}]
+  (if (and sender contents)
+    (s/put-string scr 0 row (str sender "> " contents) {:fg (color-for sender)})
+    (s/put-string scr 0 row (str "server> " (pr-str m)) {:fg :yellow :bg :red})))
 
 (defn draw-input-prompt [scr row]
   (let [value (input-value)]
