@@ -1,4 +1,4 @@
-(ns sneerteam.chat-terminal.udp
+(ns sneer.chat-terminal.udp
   (:require [clojure.core.async :as async :refer [go-loop <! >!!]]
             [clojure.edn :as edn])
   (:import [java.net DatagramPacket DatagramSocket InetAddress]))

@@ -1,8 +1,8 @@
-(ns sneerteam.chat-terminal.main
+(ns sneer.chat-terminal.main
   (:require [lanterna.screen :as s]
             [amalloy.ring-buffer :refer [ring-buffer]]
             [clojure.core.async :as async :refer [go go-loop alt! alt!! <! >! >!! <!!]]
-            [sneerteam.chat-terminal.udp :as udp])
+            [sneer.chat-terminal.udp :as udp])
   (:gen-class))
 
 (def max-messages 200)
